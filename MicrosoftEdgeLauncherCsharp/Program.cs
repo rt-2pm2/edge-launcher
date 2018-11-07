@@ -61,12 +61,14 @@ namespace MicrosoftEdgeLaucherCsharp
 							Console.WriteLine("Something went wrong in the parameter parsing...");
 						}
 						break;
-					}               default:
+					}
+				default:
 					Console.WriteLine("Application allows ONLY one parameter. Type <MicrosoftEdgeLauncherCsharp.exe http://yourpreferedurl.com> (without <>).");
 					break;
 			}
 
-			Console.Read();
+			// Comment out to release the terminal after the launch
+			//Console.Read();
 		}
 
 		/// <summary>
