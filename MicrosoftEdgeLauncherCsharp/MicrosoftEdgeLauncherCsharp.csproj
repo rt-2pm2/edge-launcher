@@ -7,8 +7,8 @@
     <ProjectGuid>{AFFCAEFD-5CAB-4491-8FAD-4C4363B78528}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MIcrosoftEdgeLauncherCsharp</RootNamespace>
-    <AssemblyName>MIcrosoftEdgeLauncherCsharp</AssemblyName>
+    <RootNamespace>MicrosoftEdgeLaucherCsharp</RootNamespace>
+    <AssemblyName>MicrosoftEdgeLaucherCsharp</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
