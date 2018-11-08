@@ -6,75 +6,144 @@ using System.Text.RegularExpressions;
 
 namespace MicrosoftEdgeLaucherCsharp
 {
-	/// <summary>
-	/// Class Program, which allows for Edge to be runned out of 
-	/// </summary>
-	class Program
+    /// <summary>
+    /// Class Program, which allows for Edge to be runned out of 
+    /// </summary>
+    class Program
 	{
 		/// <summary>
 		/// Edge Application Name
 		/// </summary>
 		private const string EdgeName = "Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge";
 
-		/// <summary>
-		/// Defines the entry point of the application.
-		/// </summary>
-		/// <param name="args">The arguments.</param>
-		static void Main(string[] args)
+        /// <summary>
+        /// Defines the entry point of the application.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        static void Main(string[] args)
 		{
 			//call to unmanaged code to activate "modern" app
 			var launcher = new ApplicationActivationManager();
 			Debug.WriteLine("Checking args...");
 			uint pid;
-			switch (args.Length)
-			{
+			switch (args.Length) {
 				case 0:
-					Debug.WriteLine("calling without arguments...");
-					launcher.ActivateApplication(EdgeName, null, ActivateOptions.None, out pid);
-					break;
+                    {
+                        // Calling Microsoft Edge as is
+                        // me_launcher
+                        Debug.WriteLine("calling without arguments...");
+                        launcher.ActivateApplication(EdgeName, null, ActivateOptions.None, out pid);
+                        break;
+                    }
 				case 1:
 					{
-						var par = args[0];
-						Console.WriteLine(par);
+                        // Calling microsoft edge to open a website
+                        // me_launcher "[website]"
+                        var par = args[0];
 
-						// == Checking the nature of the parameter
-						// Define the regex expressions
-						var regex_url = new Regex(@"^(https?|ftp)\://.*$");
-						var regex_file = new Regex(@"^(file)\://.*$");
+                        if (par == "-h")
+                            Showguide();
+                        else {
+                            // == Checking the nature of the parameter
+                            // Define the regex expressions
+                            var regex_url = new Regex(@"^((https?|ftp)\://|www).*$");
 
-						// Check flags
-						bool isurl = regex_url.IsMatch(par);
-						bool isfile = regex_file.IsMatch(par);
+                            // Check flags
+                            bool sanity = regex_url.IsMatch(par);
 
-						if (isurl || isfile) {
-							if (isurl)
-								Debug.WriteLine("calling with url...");
-							if (isfile)
-								Debug.WriteLine("calling with file...");
-
-							// Launch the application
-							launcher.ActivateApplication(EdgeName,
-									par,
-									ActivateOptions.None,
-									out pid);
-						} else {
-							Console.WriteLine("Something went wrong in the parameter parsing...");
-						}
+                            if (sanity) {
+                                // Launch the application
+                                launcher.ActivateApplication(EdgeName,
+                                        par,
+                                        ActivateOptions.None,
+                                        out pid);
+                            } else {
+                                Console.WriteLine("Something went wrong in the address parsing...");
+                                Showguide();
+                            }
+                        }
 						break;
 					}
-				default:
-					Console.WriteLine("Application allows ONLY one parameter. Type <MicrosoftEdgeLauncherCsharp.exe http://yourpreferedurl.com> (without <>).");
-					break;
-			}
+                default:
+                    {
+                        // Calling microsoft edge with options
+                        // me_launcher [-opts] "https://[website]"
 
-			// Comment out to release the terminal after the launch
+                        int noptpar = args.Length - 1;
+                        bool filemode = false;
+                        bool readmode = false;
+
+                        // Parsing the parameters
+                        for (int i = 0; i < noptpar; i++) {
+                            string par = args[i];
+
+                            if (par == "-r") {
+                                readmode = true;
+                                continue;
+                            }
+
+                            if (par == "-f") {
+                                filemode = true;
+                                continue;
+                            }
+
+                            // If you get here something is wrong...
+                            Console.Write("Error parsing the parameters: ");
+                            Console.WriteLine("\"" + par + "\" was not recognized as valid parameter!");
+                            Showguide();
+                        }
+
+                        // Check that both the options have been selected
+                        if (filemode && readmode) {
+                            Console.WriteLine("It is not possible to open local file in read mode");
+                            Showguide();
+                            break;
+                        }
+
+                        
+                        // Extract the target from the parameters
+                        string target = args[noptpar];
+
+                        string extended_target = target;
+                        if (filemode)
+                            extended_target = "file://" + extended_target;
+                        
+                        if (readmode)
+                            extended_target = "read:" + extended_target;
+
+                        // Launch the application
+                        launcher.ActivateApplication(EdgeName,
+                                extended_target,
+                                ActivateOptions.None,
+                                out pid);
+                        break;
+                    }
+			} // ENDOFSWITCH
+
 			//Console.Read();
 		}
 
-		/// <summary>
-		/// Enum ActivateOptions
-		/// </summary>
-		public enum ActivateOptions
+        private static void Showguide()
+        { 
+            Console.WriteLine("\nThe following application launches the Microsoft Edge browser.");
+            Console.WriteLine("It is possible to:");
+            Console.WriteLine("\t 1) Launch the Microsoft Edge browser");
+            Console.WriteLine("\t 2) Launch the Microsoft Edge browser in reading mode");
+            Console.WriteLine("\t 3) Launch the Microsoft Edge browser to open local html/htm files");
+            
+            Console.WriteLine("Usage:");
+            Console.WriteLine("\tme_launcher.exe [-r] [-f] \"[url/path]\" ");
+            Console.WriteLine("Options:");
+            Console.WriteLine("\t -r:  Launch Microsoft Edge in reading mode.");
+            Console.WriteLine("\t -f:  Open a local html/htm file with Microsoft Edge.");
+            Console.WriteLine("\t url/path: The URL or the file path to be open in Microsoft Edge.");
+            Console.WriteLine("Note: It is not possible to open local files in reading mode.");
+        }
+
+        /// <summary>
+        /// Enum ActivateOptions
+        /// </summary>
+        public enum ActivateOptions
 		{
 			/// <summary>
 			/// The none
